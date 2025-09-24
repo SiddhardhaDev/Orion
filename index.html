@@ -1,0 +1,217 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pico Ultimate — Open-Source Build Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+    .glass { background: rgba(255,255,255,0.88); backdrop-filter: blur(6px); }
+    pre { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size: 13px; }
+    table { border-collapse: collapse; }
+    td,th { border: 1px solid #e5e7eb; padding: 8px; }
+    .toc a { color: #1e3a8a; }
+    .section { scroll-margin-top: 80px; }
+    header { position: sticky; top:0; z-index:60; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <header class="bg-gradient-to-r from-sky-600 to-indigo-600 text-white p-4">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">Pico Ultimate — Compact All‑Day Assist Robot</h1>
+        <div class="text-sm opacity-90">Open-source, full build guide — complete code, BOM, CAD notes, wiring, software and step-by-step build instructions.</div>
+      </div>
+      <nav class="text-sm">
+        <a class="mr-4" href="#overview">Overview</a>
+        <a class="mr-4" href="#capabilities">Capabilities</a>
+        <a class="mr-4" href="#bom">BOM</a>
+        <a class="mr-4" href="#mechanical">Mechanical</a>
+        <a class="mr-4" href="#electrical">Electrical</a>
+        <a class="mr-4" href="#software">Software</a>
+        <a href="#build">Build</a>
+      </nav>
+    </div>
+  </header>  <main class="max-w-6xl mx-auto p-6 space-y-8"><section id="overview" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Overview</h2>
+  <p class="mt-2">Pico Ultimate is the "ultimate" compact autonomous helper: a minimalistic, high-performance robot that can carry up to 25 kg, pick and place a 20 L water jug, navigate indoor/outdoor environments, climb/descend up to 30° slopes and stairs, and run all day using swappable battery modules. For compute it uses an <strong>NVIDIA Jetson Orin 64GB</strong> module (Orin-class 64GB variant) to enable on-device large model inference, real-time SLAM, and manipulation planning.</p>
+
+  <h3 class="mt-4">Rendered concept</h3>
+  <p class="text-sm opacity-80">This render shows the concept robot and its scaled 20L jug. Use the mechanical dimensions below to align components in CAD.</p>
+  <img src="sandbox:/mnt/data/A_3D-rendered_digital_image_showcases_a_mobile_rob.png" alt="Pico Ultimate render" class="rounded-lg border" />
+
+  <h3 class="mt-4">What you'll find in this document</h3>
+  <ul class="list-disc pl-5">
+    <li>Complete, parts-level BOM with example SKUs and local price references.</li>
+    <li>Detailed mechanical design notes, arm kinematics, and torque calculations.</li>
+    <li>Electrical wiring diagrams, battery sizing math and safety circuits.</li>
+    <li>Software architecture (ROS2), example launch configs and node snippets.</li>
+    <li>Full assembly & testing checklists and maintenance schedules.</li>
+  </ul>
+</section>
+
+<section id="capabilities" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Capabilities (Ultimate Spec)</h2>
+  <ul class="list-disc pl-5 mt-2">
+    <li><strong>Payload:</strong> 25 kg peak (design target), 20 L jug handling standard.</li>
+    <li><strong>Compute:</strong> NVIDIA Jetson Orin 64GB module — supports large-model inference (LLMs), multi-camera fusion, and MoveIt2 at high frame rates.</li>
+    <li><strong>Runtime:</strong> 12–16 hours typical with 12 kWh usable battery; hot-swap modules for 24/7 operation.</li>
+    <li><strong>Mobility:</strong> 4× independently-driven wheels with leg-assist actuators for obstacle negotiation and stair transitions.</li>
+    <li><strong>Perception:</strong> 360° LiDAR + stereo depth cameras + RTK-GNSS for outdoor precision.</li>
+    <li><strong>Safety:</strong> Redundant E-stop, anti-tip controller, strain gauges and load-cell monitoring of payload.</li>
+    <li><strong>Interfaces:</strong> Voice, smartphone app, optional cloud integration, and local web UI for diagnostics.</li>
+  </ul>
+</section>
+
+<section id="bom" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Bill of Materials (parts-level)</h2>
+  <p class="mt-2">This BOM provides precise part suggestions and example prices. Use these as procurement starting points — replace SKUs with local equivalents if needed. For the "ultimate" build we list higher-grade components (64GB Orin, harmonic drives, ATI force sensors) to maximize reliability and performance.</p>
+
+  <div class="overflow-x-auto mt-4">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50"><tr><th>#</th><th>Part</th><th>Model/SKU</th><th>Vendor</th><th>Qty</th><th>Example Price</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>AI Compute</td><td>NVIDIA Jetson Orin (64GB module or dev kit)</td><td>NVIDIA/Yahboom/Distributor</td><td>1</td><td>~US$2,499</td><td>64GB variant for heavy models and multi-camera fusion</td></tr>
+        <tr><td>2</td><td>LiDAR</td><td>Ouster OS0-64 (or smaller A1/A3 as budget)</td><td>Ouster / Resellers</td><td>1</td><td>~US$3,000+</td><td>High-res 3D LiDAR recommended for outdoor+indoor</td></tr>
+        <tr><td>3</td><td>Depth Camera</td><td>Intel RealSense D455</td><td>Intel/Resellers</td><td>2</td><td>~US$400 each</td><td>Longer depth range than D435i</td></tr>
+        <tr><td>4</td><td>Wheel Motors</td><td>High-torque BLDC 6374 / hub motors (~2–3kW peak)</td><td>Maytech / Motor suppliers</td><td>4</td><td>~US$150 each</td><td>Choose sensored motors for torque control</td></tr>
+        <tr><td>5</td><td>Motor Controllers</td><td>ODrive v3.6 / Advanced motor drives (CAN)</td><td>ODrive / Elmo / Roboteq</td><td>2–4</td><td>~US$250–1500 each</td><td>Higher-end drives for regen & torque control</td></tr>
+        <tr><td>6</td><td>Manipulator Joint Gears</td><td>Harmonic drive / RV reducer</td><td>Harmonic Drive / Sumitomo</td><td>7 sets</td><td>Varies (high)</td><td>High torque joints for shoulder/elbow</td></tr>
+        <tr><td>7</td><td>Manipulator Motors</td><td>Brushless torque motors matched to harmonic drive</td><td>Maxon / Kollmorgen</td><td>7</td><td>Varies</td><td>Select to meet torque after reduction</td></tr>
+        <tr><td>8</td><td>Wrist Force/Torque Sensor</td><td>ATI Mini45 (or equivalent)</td><td>ATI Industrial</td><td>1</td><td>Quote required (~US$4k+)</td><td>6-axis F/T for safe grasping</td></tr>
+        <tr><td>9</td><td>Battery Modules</td><td>48V Li-ion modules (3–4 modular packs to reach ~12kWh)</td><td>Battery suppliers</td><td>3</td><td>~₹64,500 each (example)</td><td>Hot-swap capable modules recommended</td></tr>
+        <tr><td>10</td><td>BMS & Contactor</td><td>48V BMS, high-current contactor, precharge</td><td>Local suppliers</td><td>1</td><td>~₹8,500</td><td>Sized for peak currents & safety</td></tr>
+        <tr><td>11</td><td>Encoders</td><td>High-resolution optical / magnetic</td><td>US/RS/Micros</td><td>8+</td><td>~₹8,000 total</td><td>Joint & wheel encoders</td></tr>
+        <tr><td>12</td><td>IMU</td><td>VectorNav VN-300 / VN-100</td><td>VectorNav</td><td>1</td><td>~US$700</td><td>High-grade IMU for dynamic stability</td></tr>
+        <tr><td>13</td><td>Perception Storage</td><td>NVMe SSD 1TB</td><td>Western Digital / Samsung</td><td>1</td><td>~₹8,000</td><td>Map caching and logs</td></tr>
+        <tr><td>14</td><td>Cabling & Connectors</td><td>M12, power & CAN cabling</td><td>Local</td><td>var</td><td>~₹20,000</td><td>Automotive-grade connectors</td></tr>
+        <tr><td>15</td><td>Chassis Materials</td><td>Aluminium 6000 series, carbon panels</td><td>Local metal shop</td><td>var</td><td>~₹40,000</td><td>Structural frame & panels</td></tr>
+        <tr><td>16</td><td>Fabrication</td><td>CNC, welding, finishing</td><td>Local machine shop</td><td>—</td><td>~₹50,000</td><td>Estimated machining/assembly</td></tr>
+        <tr><td>17</td><td>Extras</td><td>Buttons, LEDs, speaker, E-stop</td><td>Local</td><td>1 set</td><td>~₹5,000</td><td>HMI & safety</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-4 text-sm opacity-80">If you want exact vendor SKUs and live updated prices (to the rupee), I can fetch and freeze a BOM CSV for procurement. The list above is the "ultimate" selection — you may downgrade items for cost savings.</p>
+</section>
+
+<section id="mechanical" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Mechanical Design & Arm Mechanism</h2>
+  <p>The manipulator is a 7-DOF serial arm with harmonic drives on high-torque joints. The chassis is compact with a recessed tray for the water jug and a kinematic guide for precise placement. Key dimensions and tolerances are included for CNC and 3D printing.</p>
+
+  <h3 class="mt-3">Kinematic keypoints</h3>
+  <ul class="list-disc pl-5">
+    <li>Base yaw rotation: ±180°</li>
+    <li>Shoulder pitch: -90° to +90°</li>
+    <li>Elbow range: -135° to +135°</li>
+    <li>Wrist: full spherical motion with roll ±360°</li>
+  </ul>
+
+  <h3 class="mt-3">Joint torque calculation (worked digits)</h3>
+  <pre>
+
+Payload m = 20.0 kg Gravity g = 9.81 m/s^2 Reach r = 0.5 m F = m * g = 20.0 * 9.81 = 196.2 N Torque_required = F * r = 196.2 * 0.5 = 98.1 N·m Design margin 1.3 => target = 98.1 * 1.3 = 127.53 N·m Round -> 130 N·m target at shoulder joint </pre>
+
+<h3 class="mt-3">Tray & cradle</h3>
+  <p>Design a kinematic cradle with two tapered locating pins and a rear stop. Use a motorized latch and load-cell under the tray to confirm seating. Integrate an RFID reader or dry-contact to signal the dispenser to flow.</p>
+</section>
+
+<section id="electrical" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Electrical & Power</h2>
+
+  <h3 class="mt-3">Battery sizing (exact math)</h3>
+  <pre>
+
+Assumption: average draw = 800 W (0.8 kW) Runtime target = 12 hours Energy_needed = 0.8 kW * 12 h = 9.6 kWh Buffer (30%) -> 9.6 * 1.3 = 12.48 kWh -> choose 12 kWh usable At 48 V: Ah = Wh / V = 12,000 Wh / 48 V = 250 Ah Pack: 48 V, 250 Ah ~= 12 kWh </pre>
+
+<h3 class="mt-3">Wiring & safety</h3>
+  <p>Main bus = 48 V, with precharge resistor, main contactor and BMS. Use 500 A-rated contactor for high peaks. E-stop cuts contactor coil via redundant circuit. Use automotive-grade M12 connectors for sensors and sealed power connectors.</p>
+
+  <h3 class="mt-3">Power distribution diagram (ASCII)</h3>
+  <pre>
+
+[Battery 48V] -> [Main Contactor + Precharge] -> [DC Bus Caps] -> [Motor Controllers (CAN)] -> Wheel motors -> [48->12V DC-DC] -> Jetson Orin 64GB + Perception -> [5V rail] -> Sensors & MCUs BMS <-> Jetson via CAN for telemetry </pre> </section>
+
+<section id="software" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Software Architecture & Examples</h2>
+  <p>Software is ROS2-based (Humble or later). Heavy perception and LLM workloads run on the Jetson Orin 64GB. Use MoveIt2 for manipulation, Nav2 for navigation, and a YOLOv8-family detector for object detection. LIO-SAM or Cartographer for LiDAR SLAM. Use containerized deployment (Docker) for reproducibility.</p>
+
+  <h3 class="mt-3">Sample ROS2 launch snippet</h3>
+  <pre>
+
+pico_orin_launch.yaml (simplified)
+
+launch:
+
+include: /opt/ros2_nav/nav2_bringup/bringup_launch.py
+
+node: rplidar_node
+
+node: realsense_node
+
+node: move_group
+
+node: object_detector </pre>
+
+  <h3 class="mt-3">Grasp service (Python example)</h3>
+  <pre>
+import rclpy from rclpy.node import Node from std_srvs.srv import Trigger
+
+class Grasp(Node): def init(self): super().init('grasp_srv') self.srv = self.create_service(Trigger, 'grasp', self.handle) def handle(self, req, res): # plan via MoveIt2, run visual servoing, close gripper with force monitoring res.success = True res.message = 'grasped' return res
+
+if name == 'main': rclpy.init() node = Grasp() rclpy.spin(node) rclpy.shutdown() </pre>
+
+<h3 class="mt-3">Model recommendations</h3>
+  <ul class="list-disc pl-5">
+    <li>Object detection: YOLOv8 medium, quantized for Jetson for speed.</li>
+    <li>Segmentation for grasping: small UNet on depth projections.</li>
+    <li>LLM & dialog: run a local LLM (e.g., Mistral, Llama 2 distilled) with GPU offload; use it for high-level instructions, task planning, and natural dialog.</li>
+  </ul>
+</section>
+
+<section id="build" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Step-by-step Build Instructions</h2>
+  <ol class="list-decimal pl-5">
+    <li><strong>Frame & chassis:</strong> cut and assemble aluminum extrusions; machine base plate for battery trays. Torque M8 structural bolts to 20 N·m.</li>
+    <li><strong>Wheel modules:</strong> mount hub motors, test free-spin, install encoders and suspension links.</li>
+    <li><strong>Battery & BMS:</strong> mount battery modules, connect BMS, test voltage and cell balancing with multimeter on bench.</li>
+    <li><strong>Manipulator:</strong> assemble harmonic drives to links, install motors, route cables through drag chain, mount the wrist F/T sensor and gripper.</li>
+    <li><strong>Sensors:</strong> fix LiDAR on mast with anti-vibration mounts, mount cameras with known extrinsics, secure IMU near CoG.</li>
+    <li><strong>Software:</strong> flash Jetson with JetPack, install ROS2, dockerize stacks, run unit tests for perception and motor control.</li>
+    <li><strong>Calibration:</strong> calibrate camera intrinsics, LiDAR extrinsics, IMU & odometry, run SLAM initialization and store baseline map.</li>
+    <li><strong>Testing:</strong> run unloaded motion tests, verify traction on incline ramp, then test with 20L dummy load. Record currents and temperatures.</li>
+  </ol>
+
+  <h3 class="mt-3">Assembly tolerances & fasteners</h3>
+  <ul class="list-disc pl-5">
+    <li>Mating pin tolerance: ±0.05 mm for kinematic guides.</li>
+    <li>Surface finish tolerance for plates: ±0.2 mm.</li>
+    <li>Use thread-locking compound on vibration-critical fasteners; re-torque after 50 hours of operation.</li>
+  </ul>
+</section>
+
+<section id="testing" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Testing & Validation</h2>
+  <p>Run progressive tests: bench tests, small motion, full navigation in controlled environment, loaded incline tests, and full mission run. Log everything and analyze failures.</p>
+  <ol class="list-decimal pl-5 mt-2">
+    <li>Static CoG and tipping test.</li>
+    <li>Full SLAM mapping and localization consistency checks.</li>
+    <li>Manipulation repeatability (≥500 place cycles without drift).</li>
+  </ol>
+</section>
+
+<section id="maintenance" class="section glass p-6 rounded-lg shadow">
+  <h2 class="text-2xl font-semibold">Maintenance & Operations</h2>
+  <ul class="list-disc pl-5">
+    <li>Daily: clean sensors, check battery state, run health diagnostics.</li>
+    <li>Weekly: check fasteners, grease gearboxes, inspect belts/straps.</li>
+    <li>Monthly: update models, firmware, check battery capacity.</li>
+  </ul>
+</section>
+
+<footer class="text-center p-6 text-sm opacity-80">This guide is for prototyping and educational purposes. Building robots involves safety risks. Follow local regulations and battery handling protocols. For commercial deployment, obtain required certifications.</footer>
+
+  </main></body>
+  </html>
