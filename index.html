@@ -1,217 +1,396 @@
+<!-- Orion Robot — Full Build Guide Website (single-file HTML)
+     Purpose: present full parts list, prices in INR, specifications, functions, build notes, and deep engineering essays.
+     Save this file as Orion_build.html and open in a browser.
+-->
 <!doctype html>
-
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pico Ultimate — Open-Source Build Guide</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Orion Robot</title>
+  <meta name="description" content= Orion robot — comprehensive build guide, parts list in INR, engineering notes, software stack, and step-by-step testing plan.">
   <style>
-    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
-    .glass { background: rgba(255,255,255,0.88); backdrop-filter: blur(6px); }
-    pre { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size: 13px; }
-    table { border-collapse: collapse; }
-    td,th { border: 1px solid #e5e7eb; padding: 8px; }
-    .toc a { color: #1e3a8a; }
-    .section { scroll-margin-top: 80px; }
-    header { position: sticky; top:0; z-index:60; }
+    :root{
+      --bg:#ffffff; --card:#fbfdff; --muted:#6b7280; --text:#111827; --accent:#0b76ef; --glass: rgba(11,118,239,0.06);
+    }
+    html,body{height:100%;}
+    body{
+      font-family: Inter, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin:0;padding:28px;background:linear-gradient(180deg,#ffffff 0%, #f7f9fb 100%);color:var(--text);
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1200px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px}
+    h1{font-size:30px;margin:0}
+    .meta{color:var(--muted);font-size:13px}
+    nav{margin-left:auto}
+    nav a{color:var(--muted);margin-left:14px;text-decoration:none;font-weight:600}
+    nav a:hover{color:var(--text)}
+
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;margin-top:22px}
+    .card{background:var(--card);border:1px solid #eef2f7;border-radius:12px;padding:18px;box-shadow:0 8px 20px rgba(9,30,66,0.03)}
+    .hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px}
+    .hero img{max-width:640px;width:100%;border-radius:12px;box-shadow:0 14px 40px rgba(10,30,60,0.06)}
+    .lead{color:var(--muted);margin-top:10px;max-width:900px}
+
+    h2{margin:0 0 8px 0}
+    h3{margin:0 0 6px 0}
+    .specs{color:var(--muted);font-size:14px}
+    .parts-list{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+    .part{display:flex;justify-content:space-between;align-items:flex-start;padding:12px;border-radius:8px;background:linear-gradient(180deg,#ffffff,#f7fbff);border:1px solid #eef5ff}
+    .part .left{max-width:68%}
+    .part h4{margin:0;font-size:15px}
+    .part .vendor{color:var(--muted);font-size:12px;margin-top:6px}
+    .price{font-weight:800}
+    .search{display:flex;gap:8px;margin-bottom:10px}
+    input[type=text]{flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8;background:white}
+    button.btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    button.btn.secondary{background:#111827;color:white}
+
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:10px;text-align:left;border-bottom:1px solid #eef2f7;font-size:14px}
+    th{color:var(--muted);font-weight:700}
+
+    .essay{line-height:1.55;color:#263238}
+    .code{background:#0b1220;color:#e6f0fb;padding:12px;border-radius:8px;font-family:SFMono-Regular,Menlo,Monaco,Monospace;font-size:12px;overflow:auto}
+    pre{background:#f7fafc;padding:12px;border-radius:8px;overflow:auto}
+
+    footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+    .note{color:#b45309;background:rgba(180,83,9,0.06);padding:8px;border-radius:8px;margin-top:12px}
+
+    /* responsive */
+    @media (max-width:1000px){.grid{grid-template-columns:1fr}.hero img{max-width:90%}}
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <header class="bg-gradient-to-r from-sky-600 to-indigo-600 text-white p-4">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+<body>
+  <div class="container">
+    <header>
       <div>
-        <h1 class="text-2xl font-bold">Pico Ultimate — Compact All‑Day Assist Robot</h1>
-        <div class="text-sm opacity-90">Open-source, full build guide — complete code, BOM, CAD notes, wiring, software and step-by-step build instructions.</div>
+        <h1>Orion— Full Build Guide & Parts (INR)</h1>
+        <div class="meta">Comprehensive single-file build guide • detailed engineering essays • parts in INR • version 2025-09-25 • Robot name: Orion</div>
       </div>
-      <nav class="text-sm">
-        <a class="mr-4" href="#overview">Overview</a>
-        <a class="mr-4" href="#capabilities">Capabilities</a>
-        <a class="mr-4" href="#bom">BOM</a>
-        <a class="mr-4" href="#mechanical">Mechanical</a>
-        <a class="mr-4" href="#electrical">Electrical</a>
-        <a class="mr-4" href="#software">Software</a>
-        <a href="#build">Build</a>
+      <nav>
+        <a href="#overview">Overview</a>
+        <a href="#mechanics">Mechanics</a>
+        <a href="#software">Software</a>
+        <a href="#parts">Parts</a>
+        <a href="#testing">Testing</a>
       </nav>
+    </header>
+
+    <section class="card hero" id="overview">
+      <img src="https://files.oaiusercontent.com/file_00000000618c6230891f2e2f0cfe460f" alt="Orion robot handling 20L bottle" />
+      <h2 style="margin-top:14px">Overview — what Orion does and why</h2>
+      <p class="lead">Orionis a compact household service robot designed to autonomously travel to a remote location, position a water cart/slot, precisely place a 20 L water bottle where it needs to be, lift and return home while negotiating slopes up to 30°. Additionally, Orionscans medicine labels, provides reminders, fetches medicines accurately, and communicates in multiple languages. The focus is safe, repeatable, and human-friendly operation in home environments.</p>
+    </section>
+
+    <div class="grid" style="margin-top:18px">
+      <main>
+        <div class="card" id="mission">
+          <h2>Mission & Requirements</h2>
+          <p class="essay">The design constraints for Orion arise from the real-world use case: households commonly use 20 L water bottles for water dispensers. A filled 20 L bottle weighs roughly 20 kg and is tall (~45–55 cm depending on bottle design). To safely fetch and place such a bottle the robot must combine robust mobility, high-torque manipulation, precise perception, and reliable software orchestration. Below are the primary functional requirements:</p>
+          <ul class="specs" style="margin-top:8px">
+            <li>Carry and manipulate up to 20 kg payload (20 L water bottle).</li>
+            <li>Negotiate indoor obstacles and slopes up to 30° (ramps or stair-equivalent surfaces).</li>
+            <li>Precisely position bottles within ±20 mm laterally and ±5 mm vertically at the docking slot using vision guidance.</li>
+            <li>Scan printed medication labels with OCR accuracy high enough to uniquely identify medicines.</li>
+            <li>Operate for 2–3 hours or more on battery; auto-dock and recharge.</li>
+            <li>Provide multilingual voice interaction (at least two languages initially, extensible).</li>
+          </ul>
+
+          <h3 style="margin-top:12px">Design tradeoffs</h3>
+          <p class="essay">The most common tradeoffs in this sort of robot are between arm reach/torque and platform agility, between payload capacity and energy consumption, and between perception latency and privacy. High torque arms are heavy; heavy arms raise the center of gravity and make climbing slopes harder. To resolve this, Orion uses a low-center-of-gravity tracked base and concentrates heavy components (battery) low in the chassis while keeping the arm kinematically compact — using gearing to trade speed for torque. For perception, Orion processes critical vision and OCR locally (Jetson + Coral TPU) to avoid sending sensitive images to the cloud.</p>
+        </div>
+
+        <div class="card" id="mechanics" style="margin-top:16px">
+          <h2>Mechanics & Manipulator Design</h2>
+          <h3>1. Mobility platform</h3>
+          <p class="essay" Orion's base is a tracked platform. Tracks provide larger contact area and better traction on inclines; they also reduce sinkage on soft surfaces. For a reliable climb on a 30° slope while carrying a 20 kg bottle, the platform must supply enough traction and torque at the ground contact.</p>
+
+          <h4>Wheel / track sizing and torque considerations</h4>
+          <p class="essay">Example conservative numbers used in our calculations:</p>
+          <ul class="specs">
+            <li>Robot empty mass (platform + arm + compute): 30 kg</li>
+            <li>Bottle mass: 20 kg</li>
+            <li>Total mass: 50 kg</li>
+            <li>Slope angle: 30°</li>
+          </ul>
+          <p class="essay">Force along slope to overcome gravity = m × g × sin(θ) ≈ 50 × 9.81 × 0.5 ≈ 245 N. If the effective drive radius is 0.08 m (80 mm), torque required at the track output = 245 × 0.08 ≈ 19.6 N·m. Add friction, acceleration reserve, and inefficiencies (×2) → design target ≈ 40 N·m at the track output. Using a gearbox of 30:1, the motor only needs ≈ 1.33 N·m at the motor shaft continuous, but selecting motors with higher continuous and peak torques is recommended (brushless or high-quality DC with planetary reductions).</p>
+
+          <h3>2. Manipulator kinematics</h3>
+          <p class="essay">To pick a 20 L bottle and place it precisely, Orion uses a 4-DOF arm architecture: a high-torque shoulder rotation (base), an elbow for reach, a forearm link and a wrist with a small pitch/yaw compliance. The aim is to keep the arm's mass concentrated near the base and minimize cantilevered loads. A vertical linear actuator is an alternative for lifting heavy loads while keeping the arm light — but linear actuators typically sacrifice speed and footprint.</p>
+
+          <h4>Shoulder torque sizing</h4>
+          <p class="essay">If the gripper holds the bottle 0.20 m from the shoulder axis: τ = m × g × r = 20 × 9.81 × 0.2 ≈ 39.2 N·m. Add margin for dynamics and inertia and design for ~80–100 N·m peak at the shoulder gearbox. Choose harmonic drive or industrial planetary gearboxes with appropriate torque ratings. Use position encoders and current sensing to implement torque-limited control and safety stopping.</p>
+
+          <h3>3. Gripper & bottle cradle</h3>
+          <p class="essay">A ring or U-shaped gripper that clamps around the bottle neck or enclosure is best for 20L bottles. The gripper should have a quick-centering mechanical guide so that the arm doesn't need to be perfect; a passive funnel in the docking slot helps direct the bottle mouth into the dispenser opening. The gripper should include a torque-limited latch and rubber contact pads to prevent slippage.</p>
+
+          <h4>Design notes</h4>
+          <ul class="specs">
+            <li>Use a spring-loaded centering ring on the gripper to tolerate ±20 mm misalignment.</li>
+            <li>Add a small force/torque sensor (or a current-based proxy) on the wrist to detect contact and prevent over-torque conditions.</li>
+            <li>Design the gripper finger geometry to distribute pressure across a large surface to avoid damaging plastic bottles.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top:16px" id="software">
+          <h2>Software Architecture & Perception</h2>
+          <p class="essay" Orion's software stack is built around ROS 2 (Navigation2 for autonomous travel, MoveIt2 for arm control) with a mission manager orchestration layer that sequences high-level tasks: Navigate → Align → Place → Confirm → Pickup → Return. Onboard compute is handled by an NVIDIA Jetson Orin NX (or equivalent) with a Coral M.2 Edge TPU for low-latency inference of object detection and OCR.</p>
+
+          <h3>Perception pipeline</h3>
+          <p class="essay">Perception tasks include: obstacle detection (LiDAR + depth camera), bottle and slot localization (object detection + fiducial markers), and text detection/recognition (OCR) for medicine labels. The pipeline is typically:</p>
+          <ol class="specs">
+            <li>Acquire RGB+D frame from wrist camera and depth camera.</li>
+            <li>Run object detector (lightweight YOLO or SSD) to find target objects (bottle, dispenser, medicine box).</li>
+            <li>Run OCR on detected label crops using optimized OCR network or Tesseract fallback.</li>
+            <li>Fuse depth to compute precise 3D grasp pose using point cloud segmentation.</li>
+          </ol>
+
+          <h4>OCR considerations</h4>
+          <p class="essay">Medicine labels vary in lighting, font, and layout. For robust recognition we recommend training a small labeled dataset of your medicine labels (50–200 images per label) and using a transfer-learning approach on a text-detection + recognition model optimized for the Coral TPU or Jetson TensorRT. For immediate functionality, Tesseract with a pre-processing pipeline (contrast normalization, deskewing) works well but can be slower and occasionally inaccurate for curved labels.</p>
+
+          <h3>Speech & Multilingual support</h3>
+          <p class="essay">For multilingual speech, use an offline ASR model such as Vosk or a lightweight Whisper variant for multiple languages, and a local TTS engine like Coqui TTS for spoken feedback. Keep language models modular so you can add new language packs without changing the core navigation and manipulation code. Always include a graphical and touch fallback (simple display) for environments where voice is undesirable.</p>
+        </div>
+
+        <div class="card" style="margin-top:16px" id="control">
+          <h2>Control Loops & Safety</h2>
+          <p class="essay">Reliable control requires a hierarchy of loops. Low-level motor controllers (on ESCs or driver boards) handle current and velocity loops. A mid-level microcontroller (STM32/Teensy) provides encoder reading, IMU fusion, and safety watchdogs. High level commands (trajectory planning, autonomous navigation) run on Jetson and are translated to joint targets via a real-time bridge (e.g., ROS2 <-> microcontroller over serial or CAN).</p>
+
+          <h3>Safety systems</h3>
+          <ul class="specs">
+            <li>Hard E-stop accessible on the robot and in the mobile app.</li>
+            <li>Current monitoring and torque limiting to detect jams.</li>
+            <li>Proximity bumpers and emergency stop on contact.</li>
+            <li>Fail-safe mission abort if wheel slip exceeds threshold on slope.</li>
+          </ul>
+
+          <h3>Human-in-the-loop & manual override</h3>
+          <p class="essay">Include a teleoperation mode for initial testing; a small remote or phone app can allow an operator to take over motion while the perception and arm control are calibrated.</p>
+        </div>
+
+        <div class="card" style="margin-top:16px" id="manufacture">
+          <h2>Mechanical Manufacturing & Assembly Notes</h2>
+          <p class="essay">Use laser-cut aluminum plates or 3D-printed nylon/ABS for brackets and the arm shroud. For high-torque joints (shoulder) consider CNC-machined steel interface flanges. For the chassis, a welded or bolted aluminum box provides rigidity while keeping weight reasonable. Tracks can be purchased as modular kits; ensure the sprockets match the motor gearbox shaft or plan adapters.</p>
+
+          <h3>Fastening & tolerances</h3>
+          <p class="essay">Keep tolerances for bearing fits to ±0.05 mm for shafts; use sprung preloads if implementing harmonic drives. For the gripper interface, design 3–4 mm of guidance clearance with chamfers to help the bottle self-align into the cradle.</p>
+        </div>
+
+        <div class="card" style="margin-top:16px" id="testing">
+          <h2>Testing Plan & Validation</h2>
+          <p class="essay">A staged testing plan minimizes risk:</p>
+          <ol class="specs">
+            <li><strong>Unit tests:</strong> run motor torque tests, encoder accuracy checks, and joint calibration with no payload.</li>
+            <li><strong>Arm load tests:</strong> test arm lift with incremental weights up to 20 kg using a safety harness.</li>
+            <li><strong>Mobility tests:</strong> verify slope travel at incremental angles 5°, 10°, 20°, 30° with stationary load and then moving load.</li>
+            <li><strong>Perception tests:</strong> dataset-based OCR accuracy tests, simulated lighting conditions, and object detection precision tests.</li>
+            <li><strong>Full mission trials:</strong> run complete fetch-place-return missions in a controlled indoor area and log failures.</li>
+          </ol>
+
+          <h3>Telemetry and logging</h3>
+          <p class="essay">Log ROS2 bag files, system resource usage, camera feeds, and sensor health during tests. Implement a dashboard (MQTT + Grafana or simple web UI) for remote monitoring.</p>
+        </div>
+
+      </main>
+
+      <aside>
+        <div class="card">
+          <h2>Parts & Prices (INR)</h2>
+          <div class="search"><input type="text" id="search" placeholder="Filter parts (e.g., RealSense)" oninput="renderParts()" /><button class="btn" onclick="downloadJSON()">Download JSON</button></div>
+          <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700"
+              {id:'jetson_orin', name:'NVIDIA Jetson Orin NX 16GB', qty:1, price:60465, vendor:'TannaTech / Robu', function:'Main compute for ROS2, vision, TTS/ASR', notes:'Handles navigation, OCR, speech locally'},
+      {id:'coral', name:'Coral M.2 Accelerator (Dual Edge TPU)', qty:1, price:7650, vendor:'Amazon.in', function:'Edge TPU for accelerating object detection/OCR models', notes:'M.2 A+E module — needs compatible carrier board'},
+      {id:'realsense', name:'Intel RealSense D435i (Depth Camera)', qty:1, price:39783, vendor:'Robu.in / Amazon', function:'Depth + IMU for manipulation and obstacle avoidance', notes:'Wrist or mast mount recommended'},
+      {id:'rplidar', name:'RPLIDAR A3 360° 25m', qty:1, price:64500, vendor:'Robu / Robokits', function:'2D LiDAR for SLAM and navigation', notes:'Outdoor-capable long-range lidar (price varies) '},
+      {id:'battery', name:'24V 20Ah Li-ion Battery Pack', qty:1, price:7999, vendor:'Amazon / Flipkart listings', function:'Main power source', notes:'Include BMS and proper enclosure'},
+      {id:'drive_motor', name:'24V 150W Planetary Geared DC Motor (example)', qty:2, price:7200, vendor:'Robokits / Robu', function:'Drive motors for tracked base', notes:'Choose motors with integrated encoders if possible'},
+      {id:'shoulder_actuator', name:'Harmonic / High-torque shoulder actuator', qty:1, price:50000, vendor:'Industrial suppliers', function:'High torque shoulder joint for lifting 20kg load', notes:'Harmonic drives are compact and backlash-free'},
+      {id:'motor_driver', name:'Motor drivers / ESCs (24V)', qty:3, price:3000, vendor:'Robu / Robokits', function:'Drive motor controllers for base and arm', notes:'Match continuous and peak currents'},
+      {id:'imu', name:'9-DOF IMU (Bosch or TDK)', qty:1, price:1500, vendor:'Robu / Amazon', function:'Estimate slope and assist stabilization', notes:'I2C/SPI interface'},
+      {id:'gps', name:'u-blox GPS (optional RTK-ready)', qty:1, price:15000, vendor:'TannaTech / Robu', function:'Global positioning for far-off tasks', notes:'RTK adds cost but improves accuracy'},
+      {id:'microcontroller', name:'STM32 low-level controller', qty:1, price:2000, vendor:'Robu / Robokits', function:'Low-level motor control, safety watchdogs, sensor fusion', notes:''},
+      {id:'gripper', name:'Adaptive bottle gripper with rubber pads', qty:1, price:8000, vendor:'Custom / Robokits estimate', function:'Securely hold 20L bottle neck/base', notes:'Spring-centering and torque-limited latch recommended'},
+      {id:'tracks_chassis', name:'Tracked chassis kit / custom aluminium frame', qty:1, price:12000, vendor:'Local fabrication / hobby kits', function:'Platform and tracks capable of 30° slope', notes:'Price varies by build'},
+      {id:'misc', name:'Cables, connectors, BMS, fasteners, enclosures', qty:1, price:8000, vendor:'Local', function:'Misc electrical and mechanical supplies', notes:''}
+    ];
+            <div id="totalINR" class="price-total"></div>
+          </div>
+          <div class="parts-list" id="parts"></div>
+          <div class="note">      
+          </div>
+
+        <div class="card" style="margin-top:14px">
+          <h3>Quick Wiring Summary</h3>
+          <table>
+            <thead><tr><th>Item</th><th>Connection</th></tr></thead>
+            <tbody>
+              <tr><td>Battery 24V 20Ah</td><td>Power to motor drivers, DC-DC to 12V/5V for Jetson & sensors</td></tr>
+              <tr><td>ESC / Motor Drivers</td><td>Drive BLDC/DC motors; encoder to microcontroller</td></tr>
+              <tr><td>STM32 Microcontroller</td><td>Low-level control, encoder reading, IMU fusion</td></tr>
+              <tr><td>Jetson Orin NX</td><td>Runs ROS2, connects via USB/PCIe to cameras & Coral</td></tr>
+              <tr><td>Coral M.2 TPU</td><td>Accelerates detection & OCR models</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h3>Purchase Notes</h3>
+          <ul class="specs">
+            <li>Buy actuators with integrated encoders where possible.</li>
+            <li>Choose battery suppliers that offer certified cells and BMS.</li>
+            <li>Order spare fasteners and a spare drive motor to reduce downtime.</li>
+          </ul>
+        </div>
+      </aside>
     </div>
-  </header>  <main class="max-w-6xl mx-auto p-6 space-y-8"><section id="overview" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Overview</h2>
-  <p class="mt-2">Pico Ultimate is the "ultimate" compact autonomous helper: a minimalistic, high-performance robot that can carry up to 25 kg, pick and place a 20 L water jug, navigate indoor/outdoor environments, climb/descend up to 30° slopes and stairs, and run all day using swappable battery modules. For compute it uses an <strong>NVIDIA Jetson Orin 64GB</strong> module (Orin-class 64GB variant) to enable on-device large model inference, real-time SLAM, and manipulation planning.</p>
 
-  <h3 class="mt-4">Rendered concept</h3>
-  <p class="text-sm opacity-80">This render shows the concept robot and its scaled 20L jug. Use the mechanical dimensions below to align components in CAD.</p>
-  <img src="sandbox:/mnt/data/A_3D-rendered_digital_image_showcases_a_mobile_rob.png" alt="Pico Ultimate render" class="rounded-lg border" />
+    <section class="card" style="margin-top:18px">
+      <h2>Complete Parts Table (JSON & interactive)</h2>
+      <p class="specs">The itemized parts list below contains vendor, price in INR, quantity, short function note, and ordering suggestions. Use the search box in the sidebar to filter.</p>
+      <pre id="jsonOut" class="code" style="max-height:420px;overflow:auto"></pre>
+    </section>
 
-  <h3 class="mt-4">What you'll find in this document</h3>
-  <ul class="list-disc pl-5">
-    <li>Complete, parts-level BOM with example SKUs and local price references.</li>
-    <li>Detailed mechanical design notes, arm kinematics, and torque calculations.</li>
-    <li>Electrical wiring diagrams, battery sizing math and safety circuits.</li>
-    <li>Software architecture (ROS2), example launch configs and node snippets.</li>
-    <li>Full assembly & testing checklists and maintenance schedules.</li>
-  </ul>
-</section>
+    <section class="card" style="margin-top:18px">
+      <h2>Mechanical Design — Detailed Arm Build</h2>
+      <p class="essay">This section walks through the step-by-step mechanical design and assembly of Orion's manipulator (arm and gripper), suitable for lifting a 20 kg water bottle. It covers materials, joint selection, shaft/bearing sizing, gearboxes, tolerances, cable routing, and maintenance.</p>
 
-<section id="capabilities" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Capabilities (Ultimate Spec)</h2>
-  <ul class="list-disc pl-5 mt-2">
-    <li><strong>Payload:</strong> 25 kg peak (design target), 20 L jug handling standard.</li>
-    <li><strong>Compute:</strong> NVIDIA Jetson Orin 64GB module — supports large-model inference (LLMs), multi-camera fusion, and MoveIt2 at high frame rates.</li>
-    <li><strong>Runtime:</strong> 12–16 hours typical with 12 kWh usable battery; hot-swap modules for 24/7 operation.</li>
-    <li><strong>Mobility:</strong> 4× independently-driven wheels with leg-assist actuators for obstacle negotiation and stair transitions.</li>
-    <li><strong>Perception:</strong> 360° LiDAR + stereo depth cameras + RTK-GNSS for outdoor precision.</li>
-    <li><strong>Safety:</strong> Redundant E-stop, anti-tip controller, strain gauges and load-cell monitoring of payload.</li>
-    <li><strong>Interfaces:</strong> Voice, smartphone app, optional cloud integration, and local web UI for diagnostics.</li>
-  </ul>
-</section>
+      <h3>Overview of the manipulator</h3>
+      <p class="essay">Design goals: low mass near the base, compact links, minimal backlash, stiffness for precise placement, and modularity for maintenance. The arm is a 4-DOF design: shoulder (high-torque rotation), elbow (reach), forearm (link), and wrist (small pitch + gripper). A short linear z-lift at the wrist can be added for fine vertical positioning while keeping the arm lightweight.</p>
 
-<section id="bom" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Bill of Materials (parts-level)</h2>
-  <p class="mt-2">This BOM provides precise part suggestions and example prices. Use these as procurement starting points — replace SKUs with local equivalents if needed. For the "ultimate" build we list higher-grade components (64GB Orin, harmonic drives, ATI force sensors) to maximize reliability and performance.</p>
+      <h3>Materials & structural members</h3>
+      <ul class="specs">
+        <li>Primary links: 6061-T6 aluminium hollow box sections or carbon-fiber tubes for weight savings.</li>
+        <li>Joint flanges and motor mounts: 7075-T6 aluminium or CNC steel for high stiffness.</li>
+        <li>Bearing housings: use GN series sealed angular contact bearings for shoulder and elbow to handle combined radial and axial loads.</li>
+        <li>Fasteners: use Grade 10.9 metric bolts for critical joints; Loctite + nylon washers for vibration resistance.</li>
+      </ul>
 
-  <div class="overflow-x-auto mt-4">
-    <table class="min-w-full text-sm">
-      <thead class="bg-gray-50"><tr><th>#</th><th>Part</th><th>Model/SKU</th><th>Vendor</th><th>Qty</th><th>Example Price</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>AI Compute</td><td>NVIDIA Jetson Orin (64GB module or dev kit)</td><td>NVIDIA/Yahboom/Distributor</td><td>1</td><td>~US$2,499</td><td>64GB variant for heavy models and multi-camera fusion</td></tr>
-        <tr><td>2</td><td>LiDAR</td><td>Ouster OS0-64 (or smaller A1/A3 as budget)</td><td>Ouster / Resellers</td><td>1</td><td>~US$3,000+</td><td>High-res 3D LiDAR recommended for outdoor+indoor</td></tr>
-        <tr><td>3</td><td>Depth Camera</td><td>Intel RealSense D455</td><td>Intel/Resellers</td><td>2</td><td>~US$400 each</td><td>Longer depth range than D435i</td></tr>
-        <tr><td>4</td><td>Wheel Motors</td><td>High-torque BLDC 6374 / hub motors (~2–3kW peak)</td><td>Maytech / Motor suppliers</td><td>4</td><td>~US$150 each</td><td>Choose sensored motors for torque control</td></tr>
-        <tr><td>5</td><td>Motor Controllers</td><td>ODrive v3.6 / Advanced motor drives (CAN)</td><td>ODrive / Elmo / Roboteq</td><td>2–4</td><td>~US$250–1500 each</td><td>Higher-end drives for regen & torque control</td></tr>
-        <tr><td>6</td><td>Manipulator Joint Gears</td><td>Harmonic drive / RV reducer</td><td>Harmonic Drive / Sumitomo</td><td>7 sets</td><td>Varies (high)</td><td>High torque joints for shoulder/elbow</td></tr>
-        <tr><td>7</td><td>Manipulator Motors</td><td>Brushless torque motors matched to harmonic drive</td><td>Maxon / Kollmorgen</td><td>7</td><td>Varies</td><td>Select to meet torque after reduction</td></tr>
-        <tr><td>8</td><td>Wrist Force/Torque Sensor</td><td>ATI Mini45 (or equivalent)</td><td>ATI Industrial</td><td>1</td><td>Quote required (~US$4k+)</td><td>6-axis F/T for safe grasping</td></tr>
-        <tr><td>9</td><td>Battery Modules</td><td>48V Li-ion modules (3–4 modular packs to reach ~12kWh)</td><td>Battery suppliers</td><td>3</td><td>~₹64,500 each (example)</td><td>Hot-swap capable modules recommended</td></tr>
-        <tr><td>10</td><td>BMS & Contactor</td><td>48V BMS, high-current contactor, precharge</td><td>Local suppliers</td><td>1</td><td>~₹8,500</td><td>Sized for peak currents & safety</td></tr>
-        <tr><td>11</td><td>Encoders</td><td>High-resolution optical / magnetic</td><td>US/RS/Micros</td><td>8+</td><td>~₹8,000 total</td><td>Joint & wheel encoders</td></tr>
-        <tr><td>12</td><td>IMU</td><td>VectorNav VN-300 / VN-100</td><td>VectorNav</td><td>1</td><td>~US$700</td><td>High-grade IMU for dynamic stability</td></tr>
-        <tr><td>13</td><td>Perception Storage</td><td>NVMe SSD 1TB</td><td>Western Digital / Samsung</td><td>1</td><td>~₹8,000</td><td>Map caching and logs</td></tr>
-        <tr><td>14</td><td>Cabling & Connectors</td><td>M12, power & CAN cabling</td><td>Local</td><td>var</td><td>~₹20,000</td><td>Automotive-grade connectors</td></tr>
-        <tr><td>15</td><td>Chassis Materials</td><td>Aluminium 6000 series, carbon panels</td><td>Local metal shop</td><td>var</td><td>~₹40,000</td><td>Structural frame & panels</td></tr>
-        <tr><td>16</td><td>Fabrication</td><td>CNC, welding, finishing</td><td>Local machine shop</td><td>—</td><td>~₹50,000</td><td>Estimated machining/assembly</td></tr>
-        <tr><td>17</td><td>Extras</td><td>Buttons, LEDs, speaker, E-stop</td><td>Local</td><td>1 set</td><td>~₹5,000</td><td>HMI & safety</td></tr>
-      </tbody>
-    </table>
+      <h3>Shoulder joint (detailed)</h3>
+      <p class="essay">The shoulder is the most critical joint — it carries the cantilevered load. Use a large diameter hollow output shaft (e.g., 25–35 mm with keyed connection) supported by two angular-contact bearings with a preload. Attach a high-torque actuator (BLDC or DC with planetary gearbox or harmonic drive) to an adapter flange. Mount an absolute encoder (e.g., AS5048 or an industrial absolute encoder) coaxially for robust position feedback.</p>
+
+      <h4>Bearing selection example</h4>
+      <p class="essay">For a 100 N·m peak torque design, select bearings with dynamic load rating > 20 kN at the shaft diameter. Use sealed bearings with grease rated for the expected temperature range. Preload bearings using spring washers or a shim stack to eliminate axial play.</p>
+
+      <h3>Gearbox & motor coupling</h3>
+      <p class="essay">Harmonic drives are compact and near-zero backlash — desirable for precision placement. Planetary gearboxes are cheaper and robust but have more backlash. Couple the motor to the gearbox using a flexible coupling to avoid misalignment stresses. Use keyways and retaining rings on shafts to prevent axial movement. Include an access plate to service the gearbox without full arm disassembly.</p>
+
+      <h3>Elbow & forearm</h3>
+      <p class="essay">The elbow uses a similar actuator arrangement but smaller torque rating. Keep link lengths short to reduce bending moments. Use box-section links with internal routing for cables and pneumatic/hydraulic lines if used. Place limiting stops (mechanical end-stops) for safe range-limiting during initialization.</p>
+
+      <h3>Wrist & gripper</h3>
+      <p class="essay">The wrist provides fine alignment and compliance. Use a small gearmotor or servo for gripper actuation with an embedded torque sensor or current-sensing algorithm. Gripper fingers should be replaceable. Design pads from silicone or nitrile rubber to increase friction and reduce bottle deformation.</p>
+
+      <h3>Cable routing & harness</h3>
+      <p class="essay">Route power and signal cables inside the arm's hollow sections where possible. Use flexible cable chains at joints (energy chains) for long-life cable management. Keep high-current motor wires separate from encoder and low-voltage signal cables to reduce noise. Use ferrite beads and twisted-pair shielded cables for encoder/I2C lines.</p>
+
+      <h3>Assembly step-by-step</h3>
+      <ol class="specs">
+        <li>Machine/cut link sections and verify dimensions with jigs.</li>
+        <li>Press-fit bearings into housings and check runout with dial indicator.</li>
+        <li>Mount motor + gearbox to flange; couple to shoulder shaft via flexible coupling.</li>
+        <li>Assemble shoulder housing and preload bearings per specification.</li>
+        <li>Install elbow assembly and verify range using temporary end-stops.</li>
+        <li>Route cables through the arm and secure them with cable ties and energy chain sections.</li>
+        <li>Install wrist and gripper; calibrate gripper closure and torque limits.</li>
+        <li>Perform static load test with incremental weights up to 20 kg with harness safety.
+      </ol>
+
+      <h3>Maintenance & lubrication</h3>
+      <p class="essay">Grease gears and bearings every 6 months of heavy use. Inspect belt/gear mesh and gearbox oil (if applicable) yearly. Keep a maintenance log with torque/current baselines to detect wear early.</p>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2>Appendix — Calculations & Example Code</h2>
+
+      <h3>Drive torque calculation (example)</h3>
+      <pre class="code">// Example calculation (JS pseudocode)
+const m = 50; // total mass (kg)
+const g = 9.81;
+const slope = Math.sin(30*Math.PI/180);
+const force = m*g*slope; // N
+const wheelRadius = 0.08; // m
+const torque = force * wheelRadius; // N*m at track output
+const safetyFactor = 2.0;
+const targetTorque = torque * safetyFactor; // design target
+console.log('design torque (N.m):', targetTorque.toFixed(2));</pre>
+
+      <h3>ROS2 node architecture (high-level)</h3>
+      <pre class="code"># high-level nodes (example)
+- /mission_manager (FSM) -> sequences tasks
+- /nav2 (nav stack) -> path planning, obstacle avoidance
+- /arm_controller -> MoveIt2 interface for arm and gripper
+- /perception/detector -> object detection, sends poses
+- /perception/ocr -> label recognition
+- /teleop -> remote control override
+- /safety_watchdog -> monitors currents, bumpers, slip</pre>
+
+      <h3>Sample MoveIt2 launch snippet (yaml)</h3>
+      <pre class="code"># moveit2 example snippet (pseudo)
+move_group:
+  planning_pipelines:
+    - ompl
+  default_planner_config: RRTConnectkConfigDefault
+</pre>
+
+      <h3>Notes on OCR training</h3>
+      <p class="essay">Collect >200 images per medicine label in varied lighting; augment with random brightness, contrast and rotations. Train a small CRNN-based text recognizer or fine-tune an OCR transformer on your dataset. Bake the model to TensorRT for Jetson performance or compile for Edge TPU if using Coral.</p>
+    </section>
+
+    <footer>
+      <div>© 2025 Orion Robot Project — build guide and parts list. Use responsibly and test in controlled conditions before operation.</div>
+    </footer>
   </div>
 
-  <p class="mt-4 text-sm opacity-80">If you want exact vendor SKUs and live updated prices (to the rupee), I can fetch and freeze a BOM CSV for procurement. The list above is the "ultimate" selection — you may downgrade items for cost savings.</p>
-</section>
+  <script>
+    const parts = [
+      {id:'jetson_orin', name:'NVIDIA Jetson Orin NX 16GB', qty:1, price:60465, vendor:'TannaTech / Robu', function:'Main compute for ROS2, vision, TTS/ASR', notes:'Handles navigation, OCR, speech locally'},
+      {id:'coral', name:'Coral M.2 Accelerator (Dual Edge TPU)', qty:1, price:7650, vendor:'Amazon.in', function:'Edge TPU for accelerating object detection/OCR models', notes:'M.2 A+E module — needs compatible carrier board'},
+      {id:'realsense', name:'Intel RealSense D435i (Depth Camera)', qty:1, price:39783, vendor:'Robu.in / Amazon', function:'Depth + IMU for manipulation and obstacle avoidance', notes:'Wrist or mast mount recommended'},
+      {id:'rplidar', name:'RPLIDAR A3 360° 25m', qty:1, price:64500, vendor:'Robu / Robokits', function:'2D LiDAR for SLAM and navigation', notes:'Outdoor-capable long-range lidar (price varies) '},
+      {id:'battery', name:'24V 20Ah Li-ion Battery Pack', qty:1, price:7999, vendor:'Amazon / Flipkart listings', function:'Main power source', notes:'Include BMS and proper enclosure'},
+      {id:'drive_motor', name:'24V 150W Planetary Geared DC Motor (example)', qty:2, price:7200, vendor:'Robokits / Robu', function:'Drive motors for tracked base', notes:'Choose motors with integrated encoders if possible'},
+      {id:'shoulder_actuator', name:'Harmonic / High-torque shoulder actuator', qty:1, price:50000, vendor:'Industrial suppliers', function:'High torque shoulder joint for lifting 20kg load', notes:'Harmonic drives are compact and backlash-free'},
+      {id:'motor_driver', name:'Motor drivers / ESCs (24V)', qty:3, price:3000, vendor:'Robu / Robokits', function:'Drive motor controllers for base and arm', notes:'Match continuous and peak currents'},
+      {id:'imu', name:'9-DOF IMU (Bosch or TDK)', qty:1, price:1500, vendor:'Robu / Amazon', function:'Estimate slope and assist stabilization', notes:'I2C/SPI interface'},
+      {id:'gps', name:'u-blox GPS (optional RTK-ready)', qty:1, price:15000, vendor:'TannaTech / Robu', function:'Global positioning for far-off tasks', notes:'RTK adds cost but improves accuracy'},
+      {id:'microcontroller', name:'STM32 low-level controller', qty:1, price:2000, vendor:'Robu / Robokits', function:'Low-level motor control, safety watchdogs, sensor fusion', notes:''},
+      {id:'gripper', name:'Adaptive bottle gripper with rubber pads', qty:1, price:8000, vendor:'Custom / Robokits estimate', function:'Securely hold 20L bottle neck/base', notes:'Spring-centering and torque-limited latch recommended'},
+      {id:'tracks_chassis', name:'Tracked chassis kit / custom aluminium frame', qty:1, price:12000, vendor:'Local fabrication / hobby kits', function:'Platform and tracks capable of 30° slope', notes:'Price varies by build'},
+      {id:'misc', name:'Cables, connectors, BMS, fasteners, enclosures', qty:1, price:8000, vendor:'Local', function:'Misc electrical and mechanical supplies', notes:''}
+    ];
 
-<section id="mechanical" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Mechanical Design & Arm Mechanism</h2>
-  <p>The manipulator is a 7-DOF serial arm with harmonic drives on high-torque joints. The chassis is compact with a recessed tray for the water jug and a kinematic guide for precise placement. Key dimensions and tolerances are included for CNC and 3D printing.</p>
+    function renderParts(){
+      const q = document.getElementById('search').value.toLowerCase();
+      const el = document.getElementById('parts');
+      el.innerHTML = '';
+      let total = 0;
+      parts.forEach(p=>{
+        if(q && !(p.name.toLowerCase().includes(q) || p.id.includes(q))) return;
+        total += p.price * p.qty;
+        const card = document.createElement('div'); card.className = 'part';
+        card.innerHTML = `<div class='left'><h4>${p.name}</h4><div class='vendor'>${p.vendor} • qty: ${p.qty}</div><div class='specs' style='margin-top:8px'>${p.function} ${p.notes?(' • '+p.notes):''}</div></div><div style='text-align:right'><div class='price'>₹ ${p.price.toLocaleString()}</div></div>`;
+        el.appendChild(card);
+      });
+      document.getElementById('jsonOut').textContent = JSON.stringify(parts,null,2);
+      const totalEl = document.getElementById('totalINR');
+      if(totalEl) totalEl.textContent = '₹ ' + total.toLocaleString();
+      // also update any other visible totals
+      const metaTotal = document.querySelectorAll('.price-total');
+      metaTotal.forEach(m => m.textContent = '₹ ' + total.toLocaleString());
+    }
 
-  <h3 class="mt-3">Kinematic keypoints</h3>
-  <ul class="list-disc pl-5">
-    <li>Base yaw rotation: ±180°</li>
-    <li>Shoulder pitch: -90° to +90°</li>
-    <li>Elbow range: -135° to +135°</li>
-    <li>Wrist: full spherical motion with roll ±360°</li>
-  </ul>
+    function downloadJSON(){
+      const data = JSON.stringify(parts,null,2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'Orion_parts_inr.json'; a.click(); URL.revokeObjectURL(url);
+    }
 
-  <h3 class="mt-3">Joint torque calculation (worked digits)</h3>
-  <pre>
-
-Payload m = 20.0 kg Gravity g = 9.81 m/s^2 Reach r = 0.5 m F = m * g = 20.0 * 9.81 = 196.2 N Torque_required = F * r = 196.2 * 0.5 = 98.1 N·m Design margin 1.3 => target = 98.1 * 1.3 = 127.53 N·m Round -> 130 N·m target at shoulder joint </pre>
-
-<h3 class="mt-3">Tray & cradle</h3>
-  <p>Design a kinematic cradle with two tapered locating pins and a rear stop. Use a motorized latch and load-cell under the tray to confirm seating. Integrate an RFID reader or dry-contact to signal the dispenser to flow.</p>
-</section>
-
-<section id="electrical" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Electrical & Power</h2>
-
-  <h3 class="mt-3">Battery sizing (exact math)</h3>
-  <pre>
-
-Assumption: average draw = 800 W (0.8 kW) Runtime target = 12 hours Energy_needed = 0.8 kW * 12 h = 9.6 kWh Buffer (30%) -> 9.6 * 1.3 = 12.48 kWh -> choose 12 kWh usable At 48 V: Ah = Wh / V = 12,000 Wh / 48 V = 250 Ah Pack: 48 V, 250 Ah ~= 12 kWh </pre>
-
-<h3 class="mt-3">Wiring & safety</h3>
-  <p>Main bus = 48 V, with precharge resistor, main contactor and BMS. Use 500 A-rated contactor for high peaks. E-stop cuts contactor coil via redundant circuit. Use automotive-grade M12 connectors for sensors and sealed power connectors.</p>
-
-  <h3 class="mt-3">Power distribution diagram (ASCII)</h3>
-  <pre>
-
-[Battery 48V] -> [Main Contactor + Precharge] -> [DC Bus Caps] -> [Motor Controllers (CAN)] -> Wheel motors -> [48->12V DC-DC] -> Jetson Orin 64GB + Perception -> [5V rail] -> Sensors & MCUs BMS <-> Jetson via CAN for telemetry </pre> </section>
-
-<section id="software" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Software Architecture & Examples</h2>
-  <p>Software is ROS2-based (Humble or later). Heavy perception and LLM workloads run on the Jetson Orin 64GB. Use MoveIt2 for manipulation, Nav2 for navigation, and a YOLOv8-family detector for object detection. LIO-SAM or Cartographer for LiDAR SLAM. Use containerized deployment (Docker) for reproducibility.</p>
-
-  <h3 class="mt-3">Sample ROS2 launch snippet</h3>
-  <pre>
-
-pico_orin_launch.yaml (simplified)
-
-launch:
-
-include: /opt/ros2_nav/nav2_bringup/bringup_launch.py
-
-node: rplidar_node
-
-node: realsense_node
-
-node: move_group
-
-node: object_detector </pre>
-
-  <h3 class="mt-3">Grasp service (Python example)</h3>
-  <pre>
-import rclpy from rclpy.node import Node from std_srvs.srv import Trigger
-
-class Grasp(Node): def init(self): super().init('grasp_srv') self.srv = self.create_service(Trigger, 'grasp', self.handle) def handle(self, req, res): # plan via MoveIt2, run visual servoing, close gripper with force monitoring res.success = True res.message = 'grasped' return res
-
-if name == 'main': rclpy.init() node = Grasp() rclpy.spin(node) rclpy.shutdown() </pre>
-
-<h3 class="mt-3">Model recommendations</h3>
-  <ul class="list-disc pl-5">
-    <li>Object detection: YOLOv8 medium, quantized for Jetson for speed.</li>
-    <li>Segmentation for grasping: small UNet on depth projections.</li>
-    <li>LLM & dialog: run a local LLM (e.g., Mistral, Llama 2 distilled) with GPU offload; use it for high-level instructions, task planning, and natural dialog.</li>
-  </ul>
-</section>
-
-<section id="build" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Step-by-step Build Instructions</h2>
-  <ol class="list-decimal pl-5">
-    <li><strong>Frame & chassis:</strong> cut and assemble aluminum extrusions; machine base plate for battery trays. Torque M8 structural bolts to 20 N·m.</li>
-    <li><strong>Wheel modules:</strong> mount hub motors, test free-spin, install encoders and suspension links.</li>
-    <li><strong>Battery & BMS:</strong> mount battery modules, connect BMS, test voltage and cell balancing with multimeter on bench.</li>
-    <li><strong>Manipulator:</strong> assemble harmonic drives to links, install motors, route cables through drag chain, mount the wrist F/T sensor and gripper.</li>
-    <li><strong>Sensors:</strong> fix LiDAR on mast with anti-vibration mounts, mount cameras with known extrinsics, secure IMU near CoG.</li>
-    <li><strong>Software:</strong> flash Jetson with JetPack, install ROS2, dockerize stacks, run unit tests for perception and motor control.</li>
-    <li><strong>Calibration:</strong> calibrate camera intrinsics, LiDAR extrinsics, IMU & odometry, run SLAM initialization and store baseline map.</li>
-    <li><strong>Testing:</strong> run unloaded motion tests, verify traction on incline ramp, then test with 20L dummy load. Record currents and temperatures.</li>
-  </ol>
-
-  <h3 class="mt-3">Assembly tolerances & fasteners</h3>
-  <ul class="list-disc pl-5">
-    <li>Mating pin tolerance: ±0.05 mm for kinematic guides.</li>
-    <li>Surface finish tolerance for plates: ±0.2 mm.</li>
-    <li>Use thread-locking compound on vibration-critical fasteners; re-torque after 50 hours of operation.</li>
-  </ul>
-</section>
-
-<section id="testing" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Testing & Validation</h2>
-  <p>Run progressive tests: bench tests, small motion, full navigation in controlled environment, loaded incline tests, and full mission run. Log everything and analyze failures.</p>
-  <ol class="list-decimal pl-5 mt-2">
-    <li>Static CoG and tipping test.</li>
-    <li>Full SLAM mapping and localization consistency checks.</li>
-    <li>Manipulation repeatability (≥500 place cycles without drift).</li>
-  </ol>
-</section>
-
-<section id="maintenance" class="section glass p-6 rounded-lg shadow">
-  <h2 class="text-2xl font-semibold">Maintenance & Operations</h2>
-  <ul class="list-disc pl-5">
-    <li>Daily: clean sensors, check battery state, run health diagnostics.</li>
-    <li>Weekly: check fasteners, grease gearboxes, inspect belts/straps.</li>
-    <li>Monthly: update models, firmware, check battery capacity.</li>
-  </ul>
-</section>
-
-<footer class="text-center p-6 text-sm opacity-80">This guide is for prototyping and educational purposes. Building robots involves safety risks. Follow local regulations and battery handling protocols. For commercial deployment, obtain required certifications.</footer>
-
-  </main></body>
-  </html>
+    // initial render after page load
+    window.addEventListener('load', renderParts);
+  </script>
+</body>
+</html>
